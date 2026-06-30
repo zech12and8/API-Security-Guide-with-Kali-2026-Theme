@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#cc0000">
+    <title>🔐 API Security · Kali 2026 · DanovisSOC+DeepSeek AI</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0a0a;
+            background-image: radial-gradient(ellipse at 50% 0%, #1a0a0a 0%, #0a0a0a 70%),
+                repeating-linear-gradient(45deg, rgba(204, 0, 0, 0.03) 0px, rgba(204, 0, 0, 0.03) 2px, transparent 2px, transparent 8px);
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            padding: 20px;
+            color: #d4c4c4;
+            min-height: 100vh;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(200, 0, 0, 0.02) 0px, rgba(200, 0, 0, 0.02) 2px, transparent 2px, transparent 4px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== KALI HEADER ===== */
+        .kali-header {
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a0a0a 50%, #0d0d0d 100%);
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            border: 2px solid #cc0000;
+            box-shadow: 0 0 50px rgba(204, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+        }
+        .kali-header::before {
+            content: "🐧";
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 36px;
+            opacity: 0.15;
+        }
+        .kali-header::after {
+            content: "🔴";
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 36px;
+            opacity: 0.15;
+        }
+        .kali-header h1 {
+            color: #ff3333;
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            text-shadow: 0 0 40px rgba(204, 0, 0, 0.3);
+        }
+        .kali-header .sub {
+            font-size: 0.75rem;
+            color: #ff8888;
+            margin-top: 6px;
+            letter-spacing: 2px;
+        }
+        .kali-header .badges {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 14px;
+            border-radius: 4px;
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .badge-red {
+            background: #cc0000;
+            color: #fff;
+        }
+        .badge-linux {
+            background: #cc0000;
+            color: #fff;
+        }
+        .badge-dark {
+            background: #222;
+            color: #ff6666;
+            border: 1px solid #cc0000;
+        }
+        .badge-purple {
+            background: #9b59b6;
+            color: #fff;
+        }
+        .badge-blue {
+            background: #1ba0d7;
+            color: #fff;
+        }
+        .badge-ai {
+            background: #cc00ff;
+            color: #fff;
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            background: rgba(16, 8, 8, 0.92);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid #3a1a1a;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+        .section-title {
+            color: #ff5555;
+            font-size: 1.1rem;
+            margin-bottom: 18px;
+            border-left: 4px solid #cc0000;
+            padding-left: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title .icon {
+            font-size: 1.4rem;
+        }
+
+        /* ===== GRIDS ===== */
+        .grid-2 {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        }
+        .grid-3 {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+        .grid-4 {
+            display: grid;
+            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: rgba(26, 12, 12, 0.8);
+            border-radius: 8px;
+            padding: 18px;
+            border: 1px solid #3a1a1a;
+            transition: border-color 0.2s;
+        }
+        .card:hover {
+            border-color: #cc0000;
+        }
+        .card h4 {
+            color: #ff8888;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card p,
+        .card li {
+            font-size: 0.7rem;
+            color: #c4b4b4;
+            line-height: 1.6;
+        }
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .card ul li {
+            padding: 4px 0;
+            border-bottom: 1px solid #1a0a0a;
+            font-size: 0.65rem;
+        }
+        .card ul li:last-child {
+            border-bottom: none;
+        }
+        .card .highlight {
+            color: #ffcc00;
+        }
+        .card .danger {
+            color: #ff3333;
+        }
+        .card .success {
+            color: #00cc66;
+        }
+        .card .info {
+            color: #66aaff;
+        }
+
+        /* ===== METRIC BADGES ===== */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .metric {
+            background: #0d0808;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px solid #2a1a1a;
+        }
+        .metric .value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ff6666;
+        }
+        .metric .label {
+            font-size: 0.45rem;
+            color: #aa8888;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        /* ===== THREAT TABLE ===== */
+        .threat-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.65rem;
+            margin-top: 10px;
+        }
+        .threat-table th {
+            background: #1a0a0a;
+            color: #ff8888;
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 2px solid #cc0000;
+            font-weight: 700;
+        }
+        .threat-table td {
+            padding: 7px 10px;
+            border-bottom: 1px solid #1a0a0a;
+            color: #c4b4b4;
+        }
+        .threat-table tr:hover td {
+            background: #1a0a0a;
+        }
+        .threat-table .badge-threat {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 3px;
+            font-size: 0.5rem;
+            font-weight: 700;
+        }
+        .badge-critical {
+            background: #ff3333;
+            color: #000;
+        }
+        .badge-high {
+            background: #ff6600;
+            color: #000;
+        }
+        .badge-medium {
+            background: #ffaa00;
+            color: #000;
+        }
+        .badge-low {
+            background: #00cc66;
+            color: #000;
+        }
+
+        /* ===== TOOL TAGS ===== */
+        .tool-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 3px;
+            font-size: 0.5rem;
+            font-weight: 700;
+            margin: 2px 3px;
+            background: #1a0a0a;
+            border: 1px solid #3a1a1a;
+            color: #d4c4c4;
+        }
+        .tool-tag.red {
+            border-color: #cc0000;
+            color: #ff6666;
+        }
+        .tool-tag.blue {
+            border-color: #1ba0d7;
+            color: #66aaff;
+        }
+        .tool-tag.green {
+            border-color: #00cc66;
+            color: #66ff99;
+        }
+        .tool-tag.purple {
+            border-color: #9b59b6;
+            color: #cc88ff;
+        }
+
+        /* ===== CHECKLIST ===== */
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 5px 0;
+            font-size: 0.65rem;
+            color: #c4b4b4;
+            border-bottom: 1px solid #1a0a0a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checklist li::before {
+            content: "✅";
+            font-size: 0.7rem;
+        }
+        .checklist li.danger::before {
+            content: "❌";
+        }
+        .checklist li.warn::before {
+            content: "⚠️";
+        }
+
+        /* ===== BADGE ROW ===== */
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            font-size: 0.5rem;
+            margin-top: 25px;
+            padding: 15px;
+            color: #664444;
+            border-top: 1px solid #2a1a1a;
+        }
+        .footer a {
+            color: #ff5555;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            color: #ff8888;
+        }
+        .footer .danovis {
+            color: #cc00ff;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 700px) {
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+            .kali-header h1 {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 0.9rem;
+            }
+            .threat-table {
+                font-size: 0.55rem;
+            }
+            .threat-table th,
+            .threat-table td {
+                padding: 4px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- ===== KALI HEADER ===== -->
+        <div class="kali-header">
+            <h1>🔐 API SECURITY · SIMPLE BREAKDOWN</h1>
+            <div class="sub">
+                "KALI LINUX 2026 · DANOVISSOC + DEEPSEEK AI"
+            </div>
+            <div class="badges">
+                <span class="badge badge-red">🔴 KALI 2026</span>
+                <span class="badge badge-linux">🐧 Linux</span>
+                <span class="badge badge-dark">🔐 API Security</span>
+                <span class="badge badge-purple">🛡️ OWASP Top 10</span>
+                <span class="badge badge-blue">🌐 REST / GraphQL</span>
+                <span class="badge badge-ai">🧠 DanovisSOC+DeepSeek AI</span>
+            </div>
+        </div>
+
+        <!-- ===== WHAT IS API SECURITY ===== -->
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">🎯</span> What Is API Security?
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📖 Definition</h4>
+                    <p>API security is the practice of <strong style="color:#ff6666;">protecting the communication</strong> between applications, services, and users from attacks, breaches, and misuse.</p>
+                    <p style="margin-top:8px;color:#aa8888;font-style:italic;">Think of an API as a <strong style="color:#ffcc00;">doorway</strong> into your system. API security is the <strong style="color:#ffcc00;">lock, alarm, and security guard</strong> on that door.</p>
+                </div>
+                <div class="card">
+                    <h4>⚠️ Why It Matters</h4>
+                    <ul>
+                        <li><span class="danger">•</span> APIs are <strong style="color:#ff6666;">everywhere</strong> — every app, website, and service uses them</li>
+                        <li><span class="danger">•</span> They expose <strong style="color:#ff6666;">sensitive data</strong> (users, payments, PII)</li>
+                        <li><span class="danger">•</span> They're a <strong style="color:#ff6666;">top attack target</strong> — hackers love APIs</li>
+                        <li><span class="danger">•</span> They're <strong style="color:#ff6666;">hard to monitor</strong> — no UI means attacks are harder to detect</li>
+                        <li><span class="danger">•</span> <strong style="color:#ff6666;">Regulations</strong> — GDPR, HIPAA, PCI-DSS require API security</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TOP THREATS ===== -->
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">🚨</span> Top API Security Threats
+            </div>
+            <table class="threat-table">
+                <thead>
+                    <tr>
+                        <th>Threat</th>
+                        <th>What It Is</th>
+                        <th>Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong style="color:#ff6666;">Broken Authentication</strong></td>
+                        <td>Weak login/authorization — no 2FA, weak passwords</td>
+                        <td><span class="badge-threat badge-critical">CRITICAL</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color:#ff6666;">BOLA</strong></td>
+                        <td>Users access other users' data by changing IDs in URLs</td>
+                        <td><span class="badge-threat badge-critical">CRITICAL</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color:#ff9900;">Injection Attacks</strong></td>
+                        <td>SQL injection, command injection sent via API</td>
+                        <td><span class="badge-threat badge-high">HIGH</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color:#ff9900;">Rate Limiting Abuse</strong></td>
+                        <td>Too many requests causing crashes, DDoS, brute force</td>
+                        <td><span class="badge-threat badge-high">HIGH</span></tr>
+                    <tr>
+                        <td><strong style="color:#ffaa00;">Excessive Data Exposure</strong></td>
+                        <td>API returns too much data (passwords, hidden fields)</td>
+                        <td><span class="badge-threat badge-medium">MEDIUM</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color:#ffaa00;">Man-in-the-Middle</strong></td>
+                        <td>Intercepting unencrypted API traffic</td>
+                        <td><span class="badge-threat badge-medium">MEDIUM</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong style="color:#00cc66;">API Key Leakage</strong></td>
+                        <td>Keys exposed in code, logs, or public repos</td>
+                        <td><span class="badge-threat badge-low">LOW</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== OWASP API SECURITY TOP 10 ===== -->
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">📋</span> OWASP API Security Top 10
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔴 Critical</h4>
+                    <ul>
+                        <li><span class="danger">1.</span> <strong style="color:#ff6666;">Broken Object Level Authorization (BOLA)</strong></li>
+                        <li><span class="danger">2.</span> <strong style="color:#ff6666;">Broken Authentication</strong></li>
+                        <li><span class="danger">3.</span> <strong style="color:#ff6666;">Broken Object Property Level Authorization</strong></li>
+                        <li><span class="danger">4.</span> <strong style="color:#ff9900;">Unrestricted Resource Consumption</strong></li>
+                        <li><span class="danger">5.</span> <strong style="color:#ff9900;">Broken Function Level Authorization</strong></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>🟡 High / Medium</h4>
+                    <ul>
+                        <li><span class="danger">6.</span> <strong style="color:#ffaa00;">Unrestricted Access to Sensitive Business Flows</strong></li>
+                        <li><span class="danger">7.</span> <strong style="color:#ffaa00;">Server-Side Request Forgery (SSRF)</strong></li>
+                        <li><span class="danger">8.</span> <strong style="color:#ffaa00;">Security Misconfiguration</strong></li>
+                        <li><span class="danger">9.</span> <strong style="color:#00cc66;">Improper Inventory Management</strong></li>
+                        <li><span class="danger">10.</span> <strong style="color:#00cc66;">Unsafe Consumption of APIs</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== BEST PRACTICES ===== -->
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">🛡️</span> API Security Best Practices
+            </div>
+            <div class="grid-3">
+                <div class="card">
+                    <h4>🔐 Authentication & Authorization</h4>
+                    <ul>
+                        <li>Use <strong style="color:#66aaff;">OAuth 2.0</strong> or <strong style="color:#66aaff;">JWT</strong></li>
+                        <li>Implement <strong style="color:#66aaff;">MFA</strong> (multi-factor auth)</li>
+                        <li>Never use basic auth over HTTP</li>
+                        <li>Use <strong style="color:#66aaff;">least privilege</strong> — only grant what's needed</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>🔒 Encryption & Data Protection</h4>
+                    <ul>
+                        <li>Always use <strong style="color:#66aaff;">HTTPS/TLS</strong> (never HTTP)</li>
+                        <li>Encrypt sensitive data <strong style="color:#66aaff;">at rest</strong> and <strong style="color:#66aaff;">in transit</strong></li>
+                        <li>Use <strong style="color:#66aaff;">strong cipher suites</strong></li>
+                        <li>Never log sensitive data (passwords, tokens)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>⚡ Rate Limiting & Input Validation</h4>
+                    <ul>
+                        <li>Limit requests per user/IP</li>
+                        <li>Return <strong style="color:#ffaa00;">429 Too Many Requests</strong></li>
+                        <li>Validate <strong style="color:#66aaff;">all</strong> input (never trust the client)</li>
+                        <li>Use <strong style="color:#66aaff;">whitelists</strong> instead of blacklists</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>🔑 API Keys & Secrets</h4>
+                    <ul>
+                        <li>Rotate keys <strong style="color:#66aaff;">regularly</strong></li>
+                        <li>Never hardcode keys in code</li>
+                        <li>Use <strong style="color:#66aaff;">environment variables</strong> or <strong style="color:#66aaff;">secrets management</strong></li>
+                        <li>Revoke compromised keys <strong style="color:#ff3333;">immediately</strong></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>📊 Logging & Monitoring</h4>
+                    <ul>
+                        <li>Log <strong style="color:#66aaff;">all</strong> API requests and errors</li>
+                        <li>Monitor for <strong style="color:#ffaa00;">unusual patterns</strong></li>
+                        <li>Use <strong style="color:#66aaff;">SIEM</strong> tools for alerts</li>
+                        <li>Never log sensitive data</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>🧪 Security Testing</h4>
+                    <ul>
+                        <li><strong style="color:#66aaff;">Penetration testing</strong> — simulate attacks</li>
+                        <li><strong style="color:#66aaff;">Static analysis</strong> — scan code for vulnerabilities</li>
+                        <li><strong style="color:#66aaff;">Dynamic analysis</strong> — test running APIs</li>
+                        <li><strong style="color:#66aaff;">Fuzz testing</strong> — send unexpected data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== API SECURITY TOOLS ===== -->
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">🛠️</span> Kali Linux 2026 · API Security Tools
+            </div>
+            <div class="grid-4">
+                <div class="card" style="text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:6px;">🕷️</div>
+                    <h4 style="justify-content:center;">OWASP ZAP</h4>
+                    <p style="font-size:0.55rem;color:#aa8888;">Open-source API security testing</p>
+                    <span class="tool-tag red">Kali</span>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:6px;">📮</div>
+                    <h4 style="justify-content:center;">Postman</h4>
+                    <p style="font-size:0.55rem;color:#aa8888;">API testing &amp; monitoring</p>
+                    <span class="tool-tag blue">Kali</span>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:6px;">🐝</div>
+                    <h4 style="justify-content:center;">Burp Suite</h4>
+                    <p style="font-size:0.55rem;color:#aa8888;">Penetration testing &amp; proxy</p>
+                    <span class="tool-tag red">Kali</span>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:6px;">🚪</div>
+                    <h4 style="justify-content:center;">Kong / Apigee</h4>
+                    <p style="font-size:0.55rem;color:#aa8888;">API gateway &amp; security</p>
+                    <span class="tool-tag purple">Kali</span>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:6px;">☁️</div>
+                    <h4 style="justify-content:center;">Cloudflare</h4>
+                    <p style="font-size:0.55rem;color:#aa8888;">DDoS protection &amp; WAF</p>
+                    <span class="tool-tag blue">Kali</span>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:6px;">🔎</div>
+                    <h4 style="justify-content:center;">nmap / masscan</h4>
+                    <p style="font-size:0.55rem;color:#aa8888;">Network &amp; port scanning</p>
+                    <span class="tool-tag green">Kali</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== QUICK CHECKLIST ===== -->
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">📋</span> Quick Security Checklist
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>✅ Do This</h4>
+                    <ul class="checklist">
+                        <li>Use HTTPS/TLS only</li>
+                        <li>Implement OAuth 2.0 or JWT</li>
+                        <li>Use strong authentication (MFA)</li>
+                        <li>Validate all input</li>
+                        <li>Rate limit requests</li>
+                        <li>Log and monitor API activity</li>
+                        <li>Encrypt sensitive data</li>
+                        <li>Use API keys and rotate them</li>
+                        <li>Restrict CORS origins</li>
+                        <li>Test security regularly</li>
+                        <li>Use an API gateway</li>
+                        <li>Follow OWASP API Security Top 10</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>❌ Avoid This</h4>
+                    <ul class="checklist">
+                        <li class="danger">Using HTTP (no encryption)</li>
+                        <li class="danger">Hardcoding API keys in code</li>
+                        <li class="danger">Using basic auth without HTTPS</li>
+                        <li class="danger">Trusting client-side input</li>
+                        <li class="danger">No rate limiting</li>
+                        <li class="danger">No logging / monitoring</li>
+                        <li class="danger">Exposing sensitive data in responses</li>
+                        <li class="danger">Using CORS with wildcard (*)</li>
+                        <li class="danger">Not testing for vulnerabilities</li>
+                        <li class="danger">Ignoring OWASP guidelines</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== REAL-WORLD EXAMPLES ===== -->
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">💡</span> Real-World Examples
+            </div>
+            <div class="grid-2">
+                <div class="card" style="border-color:#4a1a1a;">
+                    <h4 style="color:#ff3333;">❌ Insecure API</h4>
+                    <div style="background:#0d0808;padding:10px;border-radius:4px;font-family:monospace;font-size:0.6rem;color:#aa8888;border:1px solid #3a1a1a;">
+                        <div style="color:#66aaff;">GET /api/users/123</div>
+                        <div style="color:#ff9900;">Authorization: Basic dXNlcjpwYXNz</div>
+                        <div style="color:#ff6666;margin-top:6px;">Response:</div>
+                        <div style="color:#ffcc00;">{ "id": 123, "name": "John", <span style="color:#ff3333;">"password": "secret123"</span> }</div>
+                    </div>
+                    <p style="margin-top:8px;font-size:0.6rem;color:#ff6666;">⚠️ Exposes passwords, uses weak auth, no rate limiting.</p>
+                </div>
+                <div class="card" style="border-color:#1a4a1a;">
+                    <h4 style="color:#00cc66;">✅ Secure API</h4>
+                    <div style="background:#0d0808;padding:10px;border-radius:4px;font-family:monospace;font-size:0.6rem;color:#aa8888;border:1px solid #1a3a1a;">
+                        <div style="color:#66aaff;">GET /api/v1/users/123</div>
+                        <div style="color:#ff9900;">Authorization: Bearer eyJhbGciOiJIUzI1NiIs...</div>
+                        <div style="color:#66ff99;">Rate-Limit: 100/1min</div>
+                        <div style="color:#66ff99;margin-top:6px;">Response:</div>
+                        <div style="color:#ffcc00;">{ "id": 123, "name": "John" }</div>
+                    </div>
+                    <p style="margin-top:8px;font-size:0.6rem;color:#66ff99;">✅ JWT auth, rate limiting, no sensitive data exposed.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== KEY TAKEAWAYS ===== -->
+        <div class="section" style="border-color:#cc0000;background:rgba(26,8,8,0.9);">
+            <div class="section-title">
+                <span class="icon">🚀</span> Key Takeaways
+            </div>
+            <div class="grid-2">
+                <div class="card" style="border-color:#cc0000;">
+                    <ul style="font-size:0.7rem;line-height:2;">
+                        <li>🔐 <strong style="color:#ff6666;">APIs are a major attack surface</strong> — hackers love them</li>
+                        <li>🔒 <strong style="color:#ff6666;">Always use HTTPS</strong> — no exceptions</li>
+                        <li>🛡️ <strong style="color:#ff6666;">Authenticate and authorize everything</strong> — never trust the client</li>
+                        <li>🧹 <strong style="color:#ff6666;">Validate all input</strong> — sanitize, escape, whitelist</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-color:#cc0000;">
+                    <ul style="font-size:0.7rem;line-height:2;">
+                        <li>⏱️ <strong style="color:#ff6666;">Rate limit</strong> — prevent abuse</li>
+                        <li>📊 <strong style="color:#ff6666;">Monitor and log</strong> — detect attacks early</li>
+                        <li>🧪 <strong style="color:#ff6666;">Test regularly</strong> — security is never "done"</li>
+                        <li>📖 <strong style="color:#ff6666;">Use OWASP guidelines</strong> — they're the industry standard</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:15px;padding:12px;background:#0d0808;border-radius:6px;border:1px solid #3a1a1a;">
+                <p style="font-size:0.7rem;color:#ff8888;font-style:italic;">
+                    "The most secure API is the one that doesn't exist. But since they do, 
+                    <strong style="color:#ff3333;">protect them like your data depends on it</strong> — because it does."
+                </p>
+                <p style="font-size:0.55rem;color:#664444;margin-top:4px;">— DanovisSOC + DeepSeek AI · Kali Linux 2026</p>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="footer">
+            🐧 <strong style="color:#ff5555;">API Security</strong> · Kali Linux 2026 · 
+            <span class="danovis">DanovisSOC</span> + <span style="color:#cc00ff;">DeepSeek AI</span> · 
+            <a href="https://github.com/zech12and8" target="_blank">GitHub</a> · 
+            <a href="https://poolersoccs.blogspot.com/" target="_blank">Blog</a> · 
+            <a href="https://www.paypal.me/DPoolerJr" target="_blank" style="color:#003087;">💛 PayPal</a>
+            <br>
+            <span style="color:#444;">📚 API Security · Simple Breakdown · OWASP Top 10 · Kali 2026</span>
+        </div>
+
+    </div>
+</body>
+</html>
